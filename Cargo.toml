@@ -1,0 +1,10 @@
+[package]
+name = "brute-longer"
+version = "0.1.0"
+authors = ["Ben Allison <ben1120@gmail.com>"]
+
+[dependencies]
+fnv = "1.0.5"
+
+[profile.release]
+lto = true
