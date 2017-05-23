@@ -1,6 +1,6 @@
 [package]
 name = "brute-longer"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Ben Allison <ben1120@gmail.com>"]
 
 [dependencies]
