@@ -25,6 +25,7 @@ living
 relative
 relational
 absorbent
+absorbefacient
 assimilating
 hygroscopic
 receptive

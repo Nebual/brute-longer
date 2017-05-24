@@ -1,22 +1,9 @@
-extern crate fnv;
+extern crate brutelonger;
 
-use std::fs::File;
-use std::io::BufReader;
-use std::io::prelude::*;
-use std::error::Error;
 use std::env;
-use std::hash::Hash;
-use std::hash::Hasher;
-use fnv::FnvHasher;
 
-fn get_file_lines_iter(name: &str) -> std::io::Lines<std::io::BufReader<std::fs::File>> {
-    let adj_file = match File::open(name) {
-        Err(why) => panic!("couldn't open {}: {}", name, why.description()),
-        Ok(file) => file,
-    };
-    let adj_reader = BufReader::new(adj_file);
-    return adj_reader.lines();
-}
+use brutelonger::*;
+
 macro_rules! print_return {
     ($x:expr) => {
         println!($x);
@@ -68,7 +55,9 @@ fn main_brute_words(args: Vec<String>) {
             Ok(ok) => ok,
         }
     }
-    brute_words_from_int(target, max, limit);
+    for line in brute_words_from_int(target, max, limit) {
+        println!("{}", line);
+    }
 }
 
 
@@ -85,52 +74,6 @@ fn main_decode_words(args: Vec<String>) {
         Ok(ok) => ok,
     };
 
-    let mut hasher = FnvHasher::default();
-    adj.hash(&mut hasher);
-    noun.hash(&mut hasher);
-    let hash = hasher.finish();
-    let target = hash % max;
+    let target = words_to_int(adj.to_owned(), noun.to_owned(), max);
     println!("{}", target);
-}
-
-fn brute_words_from_int(target: u64, max: u64, mut limit: u8) {
-    let mut adjs = get_file_lines_iter("words/adjectives.txt");
-    let mut nouns = get_file_lines_iter("words/nouns.txt");
-
-    loop {
-        let adj : std::string::String = match adjs.next() {
-            None => {
-                adjs = get_file_lines_iter("words/adjectives.txt");
-                continue;
-            },
-            Some(x) => match x {
-                Err(why) => panic!("adj failed?? {}", why.description()),
-                Ok(y) => y,
-            },
-        };
-        let noun : std::string::String = match nouns.next() {
-            None => {
-                nouns = get_file_lines_iter("words/nouns.txt");
-                continue;
-            }
-            Some(x) => match x {
-                Err(why) => panic!("noun failed?? {}", why.description()),
-                Ok(y) => y,
-            },
-        };
-        let mut hasher = FnvHasher::default();
-        adj.hash(&mut hasher);
-        noun.hash(&mut hasher);
-
-        let hash = hasher.finish();
-        if (hash % max) == target {
-            println!("{} {}", adj, noun);
-            if limit > 1 {
-                limit -= 1;
-            } else {
-                break;
-            }
-        }
-
-    }
 }
