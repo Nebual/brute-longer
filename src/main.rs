@@ -4,6 +4,9 @@ use std::env;
 
 use brutelonger::*;
 
+#[cfg(feature = "webserver")]
+pub mod webserver;
+
 macro_rules! print_return {
     ($x:expr) => {
         println!($x);
@@ -17,10 +20,20 @@ fn main() {
     if args.contains(&("-h".to_owned())) {
         print_return!("Usage:\
             \n    brute-longer target max [limit]\
-            \n    brute-longer -d adjective noun max");
+            \n    brute-longer -d adjective noun max\
+            \n    brute-longer -w http://target-site.com/articles [max]");
     }
     if args.contains(&("-d".to_owned())) {
         main_decode_words(args);
+    } else if cfg!(feature = "webserver") && args.contains(&("-w".to_owned())) {
+        #[cfg(feature = "webserver")]
+        {
+            let mut args_iter = args.iter();
+            args_iter.position(|&ref r| r == "-w"); // find the position of the -w
+            let url_base = args_iter.next().unwrap(); // and then get the argument immediately after it
+            let max = args_iter.next().unwrap_or(&("".to_string())).parse().unwrap_or(100000);
+            webserver::launch_webserver("localhost:3000", url_base, max);
+        }
     } else {
         main_brute_words(args);
     }
